@@ -1,0 +1,32 @@
+#!/usr/bin/env php
+<?php
+//
+// Symfony console command template.
+//
+use Symfony\Component\Console\Application;
+$application = new Application('Console Command');
+$application->addCommands(findCommands('Acme', 'src/Acme'));
+$application->run();
+
+//
+// Search the src/Acme/ directory looking for <file>Command.php and add the commands to this
+// application.
+//
+function findCommands($namespace = '', $path)
+{
+    $commands = array();
+    $finder = new \Symfony\Component\Finder\Finder();
+    $finder->files()->name('*Command.php')->in(__DIR__.'/'.$path);
+    foreach ($finder as $file) {
+        $ns = $namespace;
+        if ($relativePath = $file->getRelativePath()) {
+            $ns .= '\\'.strstr($relativePath, '/', '\\');
+        }
+        $class = $ns . '\\'.$file->getBasename('.php');
+        $r = new \ReflectionClass($class);
+        if ($r->isSubclassOf('Symfony\Component\Console\Command\Command') && !$r->isAbstract() && $r->getConstructor()->getNumberOfRequiredParameters()) {
+            $commands[] = new $class;
+        }
+    }
+    return $commands;
+}
