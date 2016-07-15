@@ -130,7 +130,7 @@ def do_rdp_conn(hostname,port,setup_payload,teardown_payload):
     return (elapsed,setup_received)
 
 def check_host(hostname, port):
-    print ("checking %s @ %d") % (hostname, port)
+    print ("checking %s @ %d") % (hostname, port),
     # try and ping the host first
     icmp = socket.getprotobyname("icmp")
     try:
@@ -146,7 +146,7 @@ def check_host(hostname, port):
     send_one_ping(my_socket, hostname, my_ID)
     delay = receive_one_ping(my_socket, my_ID, 2)
     my_socket.close()
-    print ("Host is alive, testing RDP connection...")
+    print ("Host is alive, testing RDP connection..."),
     
     socket.setdefaulttimeout(5)
     setup_x224_cookie = "Cookie: msthash=\r\n"
