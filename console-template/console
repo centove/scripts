@@ -1,10 +1,12 @@
 #!/usr/bin/env php
 <?php
+require __DIR__.'/vendor/autoload.php';
 //
 // Symfony console command template.
 //
 use Symfony\Component\Console\Application;
-$application = new Application('Console Command');
+
+$application = new Application('Console Command', "1.0");
 $application->addCommands(findCommands('Acme', 'src/Acme'));
 $application->run();
 
@@ -20,12 +22,17 @@ function findCommands($namespace = '', $path)
     foreach ($finder as $file) {
         $ns = $namespace;
         if ($relativePath = $file->getRelativePath()) {
-            $ns .= '\\'.strstr($relativePath, '/', '\\');
+            $ns .= '\\'.strtr($relativePath, '/', '\\');
         }
         $class = $ns . '\\'.$file->getBasename('.php');
+        print "testing command $class\n";
         $r = new \ReflectionClass($class);
-        if ($r->isSubclassOf('Symfony\Component\Console\Command\Command') && !$r->isAbstract() && $r->getConstructor()->getNumberOfRequiredParameters()) {
+        if ($r->isSubclassOf('Symfony\Component\Console\Command\Command') &&
+            !$r->isAbstract() &&
+            !$r->getConstructor()->getNumberOfRequiredParameters()) {
             $commands[] = new $class;
+        } else {
+            print "No Command\n $class";
         }
     }
     return $commands;
